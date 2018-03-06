@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Dao.ReviewDao">
+	<insert id="insertReview" parameterType="ReviewVO">
+		INSERT INTO REVIEW VALUES(
+		REV_SEQ.NEXTVAL,
+		#{REV_TITLE,jdbcType=VARCHAR},
+		#{REV_CONTENT,jdbcType=VARCHAR},
+		#{REV_FILE,jdbcType=VARCHAR},
+		#{M_ID,jdbcType=VARCHAR},
+		#{REV_DESTINATION,jdbcType=VARCHAR},
+		#{REV_START,jdbcType=DATE},
+		#{REV_END,jdbcType=DATE},
+	<choose>
+	<when test="REV_REM_COUNT!=null">
+	#{REV_REM_COUNT,jdbcType=INTEGER},</when>
+	<otherwise>0,</otherwise>
+	</choose>	
+		<choose>
+	<when test="REV_UNREM_COUNT!=null">
+	#{REV_UNREM_COUNT,jdbcType=INTEGER},</when>
+	<otherwise>0,</otherwise>
+	</choose>
+	<choose>
+		<when test="REV_VIEWS!=null">
+	#{REV_VIEWS,jdbcType=INTEGER},</when>
+	<otherwise>0,</otherwise>
+	</choose>
+	<choose>
+	<when test="REV_CREATE_DATE != null">
+		#{REV_CREATE_DATE,jdbcType=DATE} ,
+	</when>
+	<otherwise>SYSDATE,</otherwise>
+	</choose>
+		<choose>
+			<when test="REV_UPDATE_DATE != null">
+				#{REV_UPDATE_DATE,jdbcType=DATE} ,
+			</when>
+			<otherwise>SYSDATE,</otherwise>
+		</choose>
+		#{REV_DELETE_DATE,jdbcType=DATE})
+	</insert>
+	
+	
+	<select id="revseqcheck" resultType="integer">
+	SELECT REV_SEQ.NEXTVAL FROM DUAL
+	</select>
+	
+	
+	<delete id="deleteReview" parameterType="ReviewVO">
+		UPDATE REVIEW SET
+		REV_DELETE_DATE=SYSDATE WHERE REC_NO=#{REC_NO}
+	</delete>
+
+	<update id="updateReview" parameterType="ReviewVO">
+		UPDATE REVIEW SET
+		REV_TITLE=#{REC_TITLE,jdbcType=VARCHAR},
+		REV_CONTENT=#{REC_CONTENT,jdbcType=VARCHAR},
+		REV_FILE=#{REC_FILE,jdbcType=VARCHAR},
+		REV_MEMBER_COUNT=#{REC_MEMBER_COUNT,jdbcType=INTEGER},
+		REV_DESTINATION=#{REC_DESTINATION,jdbcType=VARCHAR},
+		REV_START=#{REC_START,jdbcType=DATE},
+		REV_STATE=#{REC_STATE,jdbcType=DATE},
+		REV_END=#{REC_END,jdbcType=DATE},
+		REV_VIEWS=#{REC_VIEWS,jdbcType=INTEGER},
+		#{REV_REM_COUNT,jdbcType=INTEGER},
+		#{REV_UNREM_COUNT,jdbcType=INTEGER},
+		REV_UPDATE_DATE=SYSDATE
+		WHERE
+		REV_NO=#{REV_NO,jdbcType=INTEGER}
+	</update>
+
+	<select id="selectReview" parameterType="ReviewVO">
+		SELECT * FROM REVIEW WHERE REV_NO=#{REV_NO}
+	</select>
+	
+	
+	<!--getReviewCount-->
+	<select id="getReviewCount" parameterType="java.util.HashMap"
+		resultType="int">
+		SELECT COUNT(*) FROM ( SELECT ROWNUM AS RN, A.* FROM(
+		SELECT * FROM REVIEW WHERE 1 = 0
+		<if test="REV_TITLE != null">
+			OR REV_TITLE LIKE '%${REV_TITLE}%'
+		</if>
+		<if test="REV_CONTENT != null">
+			OR REV_CONTENT LIKE '%${REV_CONTENT}%'
+		</if>
+		<if test="M_ID != null">
+			OR M_ID LIKE '%${M_ID}%'
+		</if>
+		<if test="REV_DESTINATION != null">
+			OR REV_DESTINATION LIKE '%${REV_DASTINATION}%'
+		</if>
+		<if test="REV_GENDER != null">
+			OR REV_GENDER LIKE '${REV_GENDER}'
+		</if>
+		<if test="REV_STATE != null">
+			OR REV_STATE LIKE '%${REV_STATE}%'
+		</if>
+		<if test="type == 0">
+			OR 1=1
+		</if>
+		<if test="REC_NO != null">
+			AND REV_NO = #{REV_NO}
+		</if>
+		<if test="startdate != null">
+			AND REV_CREATE_DATE
+			between #{startdate} and #{enddate}
+		</if>
+		AND REV_DELETE_DATE IS NULL
+		order by REV_NO DESC)
+		A
+		)
+	</select>
+	
+	
+	<select id="getReviewList" parameterType="java.util.HashMap"
+		resultType="ReviewVO">
+		SELECT * FROM ( SELECT ROWNUM AS RN, A.* FROM(
+		SELECT * FROM REVIEW WHERE 1 = 0
+		<if test="REV_TITLE != null">
+			OR REV_TITLE LIKE '%${REV_TITLE}%'
+		</if>
+		<if test="REV_CONTENT != null">
+			OR REV_CONTENT LIKE '%${REV_CONTENT}%'
+		</if>
+		<if test="M_ID != null">
+			OR M_ID LIKE '%${M_ID}%'
+		</if>
+		<if test="REV_DESTINATION != null">
+			OR REV_DESTINATION LIKE '%${REV_DASTINATION}%'
+		</if>
+		<if test="REV_GENDER != null">
+			OR REV_GENDER LIKE '${REV_GENDER}'
+		</if>
+		<if test="REV_STATE != null">
+			OR REV_STATE LIKE '%${REV_STATE}%'
+		</if>
+		<if test="type == 0">
+			OR 1=1
+		</if>
+		<if test="REC_NO != null">
+			AND REV_NO = #{REV_NO}
+		</if>
+		<if test="startdate != null">
+			AND REV_CREATE_DATE
+			between #{startdate} and #{enddate}
+		</if>
+		AND REV_DELETE_DATE IS NULL
+		order by REV_NO DESC)
+		A
+		)
+		WHERE RN BETWEEN ${STARTRN} AND ${ENDRN}
+	</select>
+
+
+
+
+</mapper>
